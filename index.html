@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación Diagnóstica · Taller de Fotografía Digital (DGR103)</title>
+<style>
+  :root{
+    --rojo:#B11116; --rojo-d:#8C0D11; --tinta:#1A1410; --gris:#6B6660;
+    --linea:#E6E1DA; --papel:#FBF9F6; --tarjeta:#FFFFFF; --foco:#F2C0C2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--papel); color:var(--tinta); line-height:1.5;
+    padding:0 0 64px;
+  }
+  /* Encabezado */
+  header{
+    background:var(--tinta); color:#fff; padding:28px 20px 26px; position:relative; overflow:hidden;
+  }
+  header .marca{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:#D8B6B7;font-weight:700}
+  header h1{font-size:1.45rem;line-height:1.2;margin:10px 0 6px;font-weight:800;letter-spacing:-.01em}
+  header p{font-size:.9rem;color:#C9C3BB;max-width:42ch}
+  /* corchetes de enfoque, guiño fotográfico */
+  .bracket{position:absolute;width:22px;height:22px;border:2px solid var(--rojo);opacity:.9}
+  .b1{top:14px;right:16px;border-left:none;border-bottom:none}
+  .b2{bottom:14px;right:16px;border-left:none;border-top:none}
+
+  main{max-width:640px;margin:0 auto;padding:0 16px}
+  .aviso{
+    background:#FCEFE0;border:1px solid #F0D6B8;border-radius:12px;
+    padding:14px 16px;margin:18px 0;font-size:.9rem;color:#5b4632}
+  .aviso b{color:var(--tinta)}
+
+  fieldset{border:none;background:var(--tarjeta);border:1px solid var(--linea);
+    border-radius:16px;padding:20px 18px;margin:16px 0}
+  legend{display:block;width:100%;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--rojo);font-weight:800;padding:0 0 4px;border-bottom:2px solid var(--rojo);margin-bottom:14px}
+
+  .q{margin:18px 0 6px;font-weight:650;font-size:1rem}
+  .q:first-of-type{margin-top:0}
+  .num{color:var(--rojo);font-weight:800}
+
+  /* Opciones tipo tarjeta para dedo gordo */
+  .opt{display:flex;align-items:center;gap:12px;border:1.5px solid var(--linea);
+    border-radius:11px;padding:13px 14px;margin:8px 0;cursor:pointer;
+    transition:border-color .12s,background .12s;font-size:.95rem}
+  .opt:hover{border-color:#cdbfb0}
+  .opt input{width:20px;height:20px;accent-color:var(--rojo);flex:none}
+  .opt:has(input:checked){border-color:var(--rojo);background:#FCF1F1}
+  .opt.sel{border-color:var(--rojo);background:#FCF1F1}
+
+  /* Campos de texto */
+  label.f{display:block;font-weight:650;margin:14px 0 6px;font-size:.95rem}
+  label.f:first-of-type{margin-top:0}
+  input[type=text],textarea{
+    width:100%;font:inherit;color:var(--tinta);background:#fff;
+    border:1.5px solid var(--linea);border-radius:11px;padding:12px 13px}
+  textarea{min-height:88px;resize:vertical}
+  input[type=text]:focus,textarea:focus,.opt:focus-within{
+    outline:none;border-color:var(--rojo);box-shadow:0 0 0 3px var(--foco)}
+  .req{color:var(--rojo)}
+
+  /* Escala 1–5 */
+  .escala{margin:14px 0}
+  .escala .lab{font-weight:600;font-size:.92rem;margin-bottom:7px}
+  .puntos{display:flex;gap:6px}
+  .puntos label{flex:1;text-align:center;border:1.5px solid var(--linea);border-radius:10px;
+    padding:11px 0;font-weight:700;cursor:pointer;font-size:.95rem}
+  .puntos label:has(input:checked){border-color:var(--rojo);background:var(--rojo);color:#fff}
+  .puntos label.sel{border-color:var(--rojo);background:var(--rojo);color:#fff}
+  .puntos label:focus-within{outline:none;box-shadow:0 0 0 3px var(--foco)}
+  .puntos input{position:absolute;opacity:0;width:0;height:0}
+  .escala .ayuda{display:flex;justify-content:space-between;font-size:.72rem;color:var(--gris);margin-top:5px}
+
+  button{
+    width:100%;background:var(--rojo);color:#fff;border:none;border-radius:13px;
+    padding:17px;font-size:1.05rem;font-weight:800;cursor:pointer;margin-top:10px;
+    transition:background .12s}
+  button:hover{background:var(--rojo-d)}
+  button:disabled{opacity:.6;cursor:default}
+
+  /* Pantalla de envío exitoso */
+  #ok{display:none;text-align:center;padding:48px 20px}
+  #ok .check{width:64px;height:64px;border-radius:50%;background:var(--rojo);color:#fff;
+    display:grid;place-items:center;font-size:2rem;margin:0 auto 18px}
+  #ok h2{font-size:1.4rem;margin-bottom:8px}
+  #ok p{color:var(--gris)}
+  .err{display:none;background:#FCE9E9;border:1px solid #E9B9BA;color:#7a1418;
+    border-radius:11px;padding:13px 15px;margin:12px 0;font-size:.9rem}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="bracket b1"></span><span class="bracket b2"></span>
+  <div class="marca">AIEP · Taller de Fotografía Digital · DGR103</div>
+  <h1>Evaluación diagnóstica</h1>
+  <p>Unidad I. Queremos saber de dónde partes para ajustar las clases a tu nivel.</p>
+</header>
+
+<main>
+  <div id="formZona">
+    <div class="aviso">
+      <b>No lleva nota.</b> Responde con sinceridad; si no sabes algo, déjalo en blanco — eso también nos sirve. Te toma unos 5 minutos.
+    </div>
+
+    <form id="form" novalidate>
+      <fieldset>
+        <legend>Tus datos</legend>
+        <label class="f">Nombre completo <span class="req">*</span></label>
+        <input type="text" id="nombre" required>
+        <label class="f">Sección</label>
+        <input type="text" id="seccion">
+        <label class="f">Carrera</label>
+        <input type="text" id="carrera">
+      </fieldset>
+
+      <fieldset>
+        <legend>A · Tu relación con la fotografía</legend>
+
+        <p class="q"><span class="num">1.</span> ¿Con qué tomas fotografías habitualmente?</p>
+        <div data-radio="q1">
+          <label class="opt"><input type="radio" name="q1" value="Smartphone"> Smartphone</label>
+          <label class="opt"><input type="radio" name="q1" value="Cámara compacta"> Cámara compacta o de bolsillo</label>
+          <label class="opt"><input type="radio" name="q1" value="Réflex o mirrorless"> Cámara réflex (DSLR) o mirrorless</label>
+          <label class="opt"><input type="radio" name="q1" value="No con frecuencia"> No tomo fotografías con frecuencia</label>
+        </div>
+
+        <p class="q"><span class="num">2.</span> ¿Tienes cámara réflex o mirrorless propia?</p>
+        <div data-radio="q2">
+          <label class="opt"><input type="radio" name="q2" value="Sí, propia"> Sí, propia</label>
+          <label class="opt"><input type="radio" name="q2" value="Pienso conseguir una"> No, pero pienso conseguir una</label>
+          <label class="opt"><input type="radio" name="q2" value="Usaré la de la Escuela"> No, usaré los equipos de la Escuela</label>
+        </div>
+
+        <p class="q"><span class="num">3.</span> Tu nivel actual (1 = nada · 5 = avanzado)</p>
+        <div class="escala" data-scale="q3a"><div class="lab">Tomar fotografías en general</div><div class="puntos" id="q3a"></div></div>
+        <div class="escala" data-scale="q3b"><div class="lab">Usar la cámara en modo manual</div><div class="puntos" id="q3b"></div></div>
+        <div class="escala" data-scale="q3c"><div class="lab">Componer / encuadrar una imagen</div><div class="puntos" id="q3c"></div></div>
+        <div class="escala" data-scale="q3d"><div class="lab">Editar fotos (Photoshop, Lightroom, otros)</div><div class="puntos" id="q3d"></div></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>B · La cámara y la exposición</legend>
+
+        <p class="q"><span class="num">4.</span> El “triángulo de exposición” está formado por:</p>
+        <label class="opt"><input type="radio" name="q4" value="ISO, diafragma y obturación"> ISO, diafragma y velocidad de obturación</label>
+        <label class="opt"><input type="radio" name="q4" value="Zoom, flash y enfoque"> Zoom, flash y enfoque</label>
+        <label class="opt"><input type="radio" name="q4" value="Brillo, contraste y saturación"> Brillo, contraste y saturación</label>
+
+        <p class="q"><span class="num">5.</span> Para “congelar” un objeto en movimiento rápido conviene una velocidad de obturación:</p>
+        <label class="opt"><input type="radio" name="q5" value="Lenta"> Lenta</label>
+        <label class="opt"><input type="radio" name="q5" value="Rápida"> Rápida</label>
+        <label class="opt"><input type="radio" name="q5" value="No influye"> No influye</label>
+
+        <p class="q"><span class="num">6.</span> Un diafragma muy abierto (por ejemplo f/2.8) produce:</p>
+        <label class="opt"><input type="radio" name="q6" value="Mucha profundidad de campo"> Mucha profundidad de campo (todo nítido)</label>
+        <label class="opt"><input type="radio" name="q6" value="Poca profundidad de campo"> Poca profundidad de campo (fondo desenfocado)</label>
+        <label class="opt"><input type="radio" name="q6" value="No afecta al enfoque"> No afecta al enfoque</label>
+
+        <p class="q"><span class="num">7.</span> El ISO controla principalmente:</p>
+        <label class="opt"><input type="radio" name="q7" value="Sensibilidad a la luz"> La sensibilidad del sensor a la luz</label>
+        <label class="opt"><input type="radio" name="q7" value="El color"> El color de la imagen</label>
+        <label class="opt"><input type="radio" name="q7" value="El tamaño del archivo"> El tamaño del archivo</label>
+
+        <p class="q"><span class="num">8.</span> En modo automático la cámara decide los parámetros por ti.</p>
+        <label class="opt"><input type="radio" name="q8" value="Verdadero"> Verdadero</label>
+        <label class="opt"><input type="radio" name="q8" value="Falso"> Falso</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>C · Lenguaje visual y composición</legend>
+
+        <p class="q"><span class="num">9.</span> La “regla de los tercios” sirve para:</p>
+        <label class="opt"><input type="radio" name="q9" value="Calcular la exposición"> Calcular la exposición correcta</label>
+        <label class="opt"><input type="radio" name="q9" value="Ubicar los elementos importantes"> Ubicar los elementos importantes de la imagen</label>
+        <label class="opt"><input type="radio" name="q9" value="Elegir el lente"> Elegir el lente adecuado</label>
+
+        <p class="q"><span class="num">10.</span> ¿Qué muestra cada plano?</p>
+        <label class="f">Plano general</label>
+        <label class="opt"><input type="radio" name="q10_general" value="Entorno completo, sujeto pequeño"> Entorno completo, sujeto pequeño</label>
+        <label class="opt"><input type="radio" name="q10_general" value="Rostro o parte de él"> Rostro o parte de él</label>
+        <label class="opt"><input type="radio" name="q10_general" value="Detalle muy cercano"> Detalle muy cercano</label>
+        <label class="f">Primer plano</label>
+        <label class="opt"><input type="radio" name="q10_primer" value="Entorno completo, sujeto pequeño"> Entorno completo, sujeto pequeño</label>
+        <label class="opt"><input type="radio" name="q10_primer" value="Rostro o parte de él"> Rostro o parte de él</label>
+        <label class="opt"><input type="radio" name="q10_primer" value="Detalle muy cercano"> Detalle muy cercano</label>
+        <label class="f">Plano detalle</label>
+        <label class="opt"><input type="radio" name="q10_detalle" value="Entorno completo, sujeto pequeño"> Entorno completo, sujeto pequeño</label>
+        <label class="opt"><input type="radio" name="q10_detalle" value="Rostro o parte de él"> Rostro o parte de él</label>
+        <label class="opt"><input type="radio" name="q10_detalle" value="Detalle muy cercano"> Detalle muy cercano</label>
+
+        <p class="q"><span class="num">11.</span> Un ángulo “contrapicado” es cuando la cámara mira al sujeto:</p>
+        <label class="opt"><input type="radio" name="q11" value="De arriba hacia abajo"> Desde arriba hacia abajo</label>
+        <label class="opt"><input type="radio" name="q11" value="De abajo hacia arriba"> Desde abajo hacia arriba</label>
+        <label class="opt"><input type="radio" name="q11" value="Al nivel de los ojos"> Al mismo nivel de los ojos</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>D · Postproducción y archivos</legend>
+
+        <p class="q"><span class="num">12.</span> ¿Has usado alguno de estos programas? <span style="font-weight:400;color:var(--gris)">(puedes marcar varios)</span></p>
+        <label class="opt"><input type="checkbox" name="q12" value="Photoshop"> Adobe Photoshop</label>
+        <label class="opt"><input type="checkbox" name="q12" value="Lightroom"> Adobe Lightroom</label>
+        <label class="opt"><input type="checkbox" name="q12" value="Canva u otro online"> Canva u otro editor online</label>
+        <label class="opt"><input type="checkbox" name="q12" value="Editor del celular"> Editor del celular</label>
+        <label class="opt"><input type="checkbox" name="q12" value="Ninguno"> Ninguno</label>
+
+        <p class="q"><span class="num">13.</span> El formato RAW se diferencia del JPG porque:</p>
+        <label class="opt"><input type="radio" name="q13" value="Pesa menos"> Pesa menos</label>
+        <label class="opt"><input type="radio" name="q13" value="Conserva más información"> Conserva más información para editar después</label>
+        <label class="opt"><input type="radio" name="q13" value="No se puede editar"> No se puede editar</label>
+
+        <p class="q"><span class="num">14.</span> ¿Sabes qué es el “revelado digital”?</p>
+        <label class="opt"><input type="radio" name="q14" value="Sí, lo he hecho"> Sí, lo he hecho</label>
+        <label class="opt"><input type="radio" name="q14" value="He escuchado el término"> He escuchado el término</label>
+        <label class="opt"><input type="radio" name="q14" value="No lo conozco"> No lo conozco</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>E · Fotografía publicitaria y expectativas</legend>
+
+        <label class="f"><span class="num">15.</span> En tus palabras, ¿para qué crees que sirve la fotografía publicitaria?</label>
+        <textarea id="q15"></textarea>
+
+        <label class="f"><span class="num">16.</span> Nombra una marca, campaña o fotógrafo cuya imagen te llame la atención (si recuerdas alguno)</label>
+        <input type="text" id="q16">
+
+        <label class="f"><span class="num">17.</span> ¿Qué te gustaría aprender o lograr en este módulo?</label>
+        <textarea id="q17"></textarea>
+      </fieldset>
+
+      <div class="err" id="err"></div>
+      <button type="submit" id="btn">Enviar mis respuestas</button>
+    </form>
+  </div>
+
+  <div id="ok">
+    <div class="check">✓</div>
+    <h2>¡Listo, recibimos tus respuestas!</h2>
+    <p>Ya puedes cerrar esta página. Nos vemos en clase.</p>
+  </div>
+</main>
+
+<script>
+  /* ====== ÚNICO CAMBIO QUE DEBES HACER ====== */
+  /* Pon aquí el correo donde quieres recibir las respuestas: */
+  const EMAIL = "jferrandp@gmail.com";
+  /* ========================================== */
+
+  // Construir las escalas 1–5
+  ["q3a","q3b","q3c","q3d"].forEach(id=>{
+    const cont=document.getElementById(id);
+    for(let n=1;n<=5;n++){
+      cont.insertAdjacentHTML("beforeend",
+        `<label><input type="radio" name="${id}" value="${n}">${n}</label>`);
+    }
+    cont.insertAdjacentHTML("afterend",
+      `<div class="ayuda"><span>Nada</span><span>Avanzado</span></div>`);
+  });
+
+  const form=document.getElementById("form");
+  const btn=document.getElementById("btn");
+  const errBox=document.getElementById("err");
+
+  const PREGUNTAS={
+    q1:"01. ¿Con qué toma fotos?", q2:"02. ¿Cámara propia?",
+    q3a:"03a. Nivel · tomar fotos", q3b:"03b. Nivel · modo manual",
+    q3c:"03c. Nivel · componer", q3d:"03d. Nivel · editar",
+    q4:"04. Triángulo de exposición", q5:"05. Congelar movimiento",
+    q6:"06. Diafragma abierto", q7:"07. ISO", q8:"08. Modo automático (V/F)",
+    q9:"09. Regla de los tercios",
+    q10_general:"10a. Plano general", q10_primer:"10b. Primer plano", q10_detalle:"10c. Plano detalle",
+    q11:"11. Contrapicado", q13:"13. RAW vs JPG", q14:"14. Revelado digital"
+  };
+
+  function val(name){const el=form.querySelector(`input[name="${name}"]:checked`);return el?el.value:"";}
+
+  // Marca visual de selección (compatible con cualquier navegador, sin depender de :has)
+  form.addEventListener("change",(e)=>{
+    const inp=e.target;
+    if(inp.type==="radio"){
+      form.querySelectorAll(`input[name="${inp.name}"]`).forEach(o=>{
+        const l=o.closest("label"); if(l) l.classList.toggle("sel",o.checked);
+      });
+    }else if(inp.type==="checkbox"){
+      const l=inp.closest("label"); if(l) l.classList.toggle("sel",inp.checked);
+    }
+  });
+
+  form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    errBox.style.display="none";
+    const nombre=document.getElementById("nombre").value.trim();
+    if(!nombre){
+      errBox.textContent="Escribe tu nombre para poder enviar.";
+      errBox.style.display="block";
+      document.getElementById("nombre").focus();
+      window.scrollTo({top:0,behavior:"smooth"});
+      return;
+    }
+
+    const datos={
+      "_subject":"Diagnóstico DGR103 — "+nombre,
+      "_captcha":"false",
+      "_template":"table",
+      "Nombre":nombre,
+      "Sección":document.getElementById("seccion").value.trim(),
+      "Carrera":document.getElementById("carrera").value.trim()
+    };
+    for(const k in PREGUNTAS){ datos[PREGUNTAS[k]]=val(k); }
+    const prog=[...form.querySelectorAll('input[name="q12"]:checked')].map(c=>c.value).join(", ");
+    datos["12. Programas usados"]=prog;
+    datos["15. ¿Para qué sirve la foto publicitaria?"]=document.getElementById("q15").value.trim();
+    datos["16. Referente que le llama la atención"]=document.getElementById("q16").value.trim();
+    datos["17. Qué le gustaría aprender"]=document.getElementById("q17").value.trim();
+
+    btn.disabled=true; btn.textContent="Enviando…";
+    try{
+      const r=await fetch("https://formsubmit.co/ajax/"+EMAIL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json","Accept":"application/json"},
+        body:JSON.stringify(datos)
+      });
+      const j=await r.json().catch(()=>({}));
+      if(r.ok && (j.success==="true"||j.success===true)){
+        document.getElementById("formZona").style.display="none";
+        document.getElementById("ok").style.display="block";
+        window.scrollTo({top:0,behavior:"smooth"});
+      }else if(((j.message||"")+"").toLowerCase().match(/activ|confirm|enable/)){
+        errBox.textContent="Casi listo: revisa la bandeja de jferrandp@gmail.com y confirma con un clic el correo de FormSubmit. Luego el formulario queda activo para todos.";
+        errBox.style.display="block";
+        btn.disabled=false; btn.textContent="Enviar mis respuestas";
+      }else{
+        throw new Error(j.message||"No se pudo enviar.");
+      }
+    }catch(err){
+      errBox.textContent="No se pudo enviar ("+err.message+"). Revisa tu conexión e inténtalo de nuevo.";
+      errBox.style.display="block";
+      btn.disabled=false; btn.textContent="Enviar mis respuestas";
+    }
+  });
+</script>
+</body>
+</html>
