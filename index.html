@@ -222,19 +222,6 @@
         <label class="opt"><input type="radio" name="q14" value="No lo conozco"> No lo conozco</label>
       </fieldset>
 
-      <fieldset>
-        <legend>E · Fotografía publicitaria y expectativas</legend>
-
-        <label class="f"><span class="num">15.</span> En tus palabras, ¿para qué crees que sirve la fotografía publicitaria?</label>
-        <textarea id="q15"></textarea>
-
-        <label class="f"><span class="num">16.</span> Nombra una marca, campaña o fotógrafo cuya imagen te llame la atención (si recuerdas alguno)</label>
-        <input type="text" id="q16">
-
-        <label class="f"><span class="num">17.</span> ¿Qué te gustaría aprender o lograr en este módulo?</label>
-        <textarea id="q17"></textarea>
-      </fieldset>
-
       <div class="err" id="err"></div>
       <button type="submit" id="btn">Enviar mis respuestas</button>
     </form>
@@ -242,8 +229,8 @@
 
   <div id="ok">
     <div class="check">✓</div>
-    <h2>¡Listo, recibimos tus respuestas!</h2>
-    <p>Ya puedes cerrar esta página. Nos vemos en clase.</p>
+    <h2>Se abrió tu correo con tus respuestas</h2>
+    <p>Solo pulsa <b>Enviar</b> en tu app de correo para entregarlo. Si no se abrió, revisa que tengas una app de correo configurada.</p>
   </div>
 </main>
 
@@ -269,14 +256,14 @@
   const errBox=document.getElementById("err");
 
   const PREGUNTAS={
-    q1:"01. ¿Con qué toma fotos?", q2:"02. ¿Cámara propia?",
-    q3a:"03a. Nivel · tomar fotos", q3b:"03b. Nivel · modo manual",
-    q3c:"03c. Nivel · componer", q3d:"03d. Nivel · editar",
-    q4:"04. Triángulo de exposición", q5:"05. Congelar movimiento",
-    q6:"06. Diafragma abierto", q7:"07. ISO", q8:"08. Modo automático (V/F)",
-    q9:"09. Regla de los tercios",
+    q1:"1. Toma fotos con", q2:"2. Cámara propia",
+    q3a:"3a. Nivel fotos", q3b:"3b. Nivel manual",
+    q3c:"3c. Nivel componer", q3d:"3d. Nivel editar",
+    q4:"4. Triángulo exposición", q5:"5. Congelar movimiento",
+    q6:"6. Diafragma f/2.8", q7:"7. ISO", q8:"8. Modo auto",
+    q9:"9. Regla de tercios",
     q10_general:"10a. Plano general", q10_primer:"10b. Primer plano", q10_detalle:"10c. Plano detalle",
-    q11:"11. Contrapicado", q13:"13. RAW vs JPG", q14:"14. Revelado digital"
+    q11:"11. Contrapicado", q13:"13. RAW vs JPG", q14:"14. Revelado"
   };
 
   function val(name){const el=form.querySelector(`input[name="${name}"]:checked`);return el?el.value:"";}
@@ -305,45 +292,26 @@
       return;
     }
 
-    const datos={
-      "_subject":"Diagnóstico DGR103 — "+nombre,
-      "_captcha":"false",
-      "_template":"table",
-      "Nombre":nombre,
-      "Sección":document.getElementById("seccion").value.trim(),
-      "Carrera":document.getElementById("carrera").value.trim()
-    };
-    for(const k in PREGUNTAS){ datos[PREGUNTAS[k]]=val(k); }
+    // Armar el cuerpo del correo: una línea por respuesta
+    const seccion=document.getElementById("seccion").value.trim();
+    let lineas=["Nombre: "+nombre];
+    if(seccion) lineas.push("Sección: "+seccion);
+    lineas.push("");
+    for(const k in PREGUNTAS){ lineas.push(PREGUNTAS[k]+": "+(val(k)||"-")); }
     const prog=[...form.querySelectorAll('input[name="q12"]:checked')].map(c=>c.value).join(", ");
-    datos["12. Programas usados"]=prog;
-    datos["15. ¿Para qué sirve la foto publicitaria?"]=document.getElementById("q15").value.trim();
-    datos["16. Referente que le llama la atención"]=document.getElementById("q16").value.trim();
-    datos["17. Qué le gustaría aprender"]=document.getElementById("q17").value.trim();
+    lineas.push("12. Programas: "+(prog||"-"));
 
-    btn.disabled=true; btn.textContent="Enviando…";
-    try{
-      const r=await fetch("https://formsubmit.co/ajax/"+EMAIL,{
-        method:"POST",
-        headers:{"Content-Type":"application/json","Accept":"application/json"},
-        body:JSON.stringify(datos)
-      });
-      const j=await r.json().catch(()=>({}));
-      if(r.ok && (j.success==="true"||j.success===true)){
-        document.getElementById("formZona").style.display="none";
-        document.getElementById("ok").style.display="block";
-        window.scrollTo({top:0,behavior:"smooth"});
-      }else if(((j.message||"")+"").toLowerCase().match(/activ|confirm|enable/)){
-        errBox.textContent="Casi listo: revisa la bandeja de jferrandp@gmail.com y confirma con un clic el correo de FormSubmit. Luego el formulario queda activo para todos.";
-        errBox.style.display="block";
-        btn.disabled=false; btn.textContent="Enviar mis respuestas";
-      }else{
-        throw new Error(j.message||"No se pudo enviar.");
-      }
-    }catch(err){
-      errBox.textContent="No se pudo enviar ("+err.message+"). Revisa tu conexión e inténtalo de nuevo.";
-      errBox.style.display="block";
-      btn.disabled=false; btn.textContent="Enviar mis respuestas";
-    }
+    const asunto="Diagnóstico DGR103 - "+nombre;
+    const cuerpo=lineas.join("\n");
+    const link="mailto:"+EMAIL+"?subject="+encodeURIComponent(asunto)+"&body="+encodeURIComponent(cuerpo);
+
+    // Abrir el correo del alumno ya escrito
+    window.location.href=link;
+
+    // Mostrar instrucción de enviar
+    document.getElementById("formZona").style.display="none";
+    document.getElementById("ok").style.display="block";
+    window.scrollTo({top:0,behavior:"smooth"});
   });
 </script>
 </body>
